@@ -1,6 +1,5 @@
 import type { MenuProps } from 'antd';
 import {
-  SettingOutlined,
   UserOutlined,
   LogoutOutlined,
   DashboardOutlined,
