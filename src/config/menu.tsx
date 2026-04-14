@@ -1,41 +1,80 @@
 import type { MenuProps } from 'antd';
 import {
-  HomeOutlined,
-  AppstoreOutlined,
   SettingOutlined,
   UserOutlined,
   LogoutOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
+  PropertySafetyOutlined,
+  SwapOutlined,
+  ToolOutlined,
+  FileSearchOutlined,
+  TagsOutlined,
+  EnvironmentOutlined,
+  ShopOutlined,
+  TeamOutlined,
+  ApartmentOutlined,
 } from '@ant-design/icons';
 import type { TFunction } from 'i18next';
 
 export const getMenuItems = (t: TFunction): MenuProps['items'] => [
   {
     key: '/',
-    icon: <HomeOutlined />,
-    label: t('Home'),
+    icon: <DashboardOutlined />,
+    label: t('Dashboard'),
   },
   {
-    key: '/inventory',
-    icon: <AppstoreOutlined />,
-    label: t('Inventory'),
+    key: '/assets',
+    icon: <PropertySafetyOutlined />,
+    label: t('Asset Management'),
   },
   {
-    key: '/settings',
-    icon: <SettingOutlined />,
-    label: t('Settings'),
+    key: '/transfer',
+    icon: <SwapOutlined />,
+    label: t('Transfer/Handover'),
+  },
+  {
+    key: '/maintenance',
+    icon: <ToolOutlined />,
+    label: t('Maintenance/Repair'),
+  },
+  {
+    key: '/inventory-audit',
+    icon: <FileSearchOutlined />,
+    label: t('Inventory/Audit'),
+  },
+  {
+    key: '/master-data',
+    icon: <DatabaseOutlined />,
+    label: t('Master Data'),
     children: [
       {
-        key: '/settings/users',
-        icon: <UserOutlined />,
-        label: t('Users'),
+        key: '/master-data/asset-types',
+        icon: <TagsOutlined />,
+        label: t('Asset Type'),
       },
       {
-        key: '/settings/roles',
-        icon: <SettingOutlined />,
-        label: t('Roles'),
+        key: '/master-data/locations',
+        icon: <EnvironmentOutlined />,
+        label: t('Location'),
+      },
+      {
+        key: '/master-data/suppliers',
+        icon: <ShopOutlined />,
+        label: t('Supplier'),
+      },
+      {
+        key: '/master-data/employees',
+        icon: <TeamOutlined />,
+        label: t('Employee'),
+      },
+      {
+        key: '/master-data/departments',
+        icon: <ApartmentOutlined />,
+        label: t('Department'),
       },
     ],
-  },
+  }
 ];
 
 export const getUserMenuItems = (t: TFunction): MenuProps['items'] => [

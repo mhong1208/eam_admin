@@ -122,26 +122,6 @@ const MainLayout: React.FC = () => {
             }}
           />
         </div>
-
-        <div style={{
-          padding: '16px 8px',
-          borderTop: mode === 'dark' ? '1px solid #1d2b3a' : '1px solid #f0f0f0',
-          flexShrink: 0
-        }}>
-          <Menu
-            theme={mode === 'dark' ? 'dark' : 'light'}
-            mode="inline"
-            selectable={false}
-            items={footerMenuItems}
-            onClick={() => {
-              console.log('Logging out...');
-            }}
-            style={{
-              borderRight: 0,
-              background: 'transparent'
-            }}
-          />
-        </div>
       </Sider>
 
       <Layout style={{
