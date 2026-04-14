@@ -1,14 +1,14 @@
-import React from 'react';
-import { Table, Button, Space, Card, Form, Row, Col } from 'antd';
-import { 
-  SearchOutlined, 
-  PlusOutlined, 
-  RestOutlined, 
-  DownloadOutlined, 
-  UploadOutlined, 
-  FileExcelOutlined 
+import React, { useRef, useState, useEffect } from 'react';
+import { Table, Button, Space, Card, Form, Row, Col, Input, Select, Spin, type TableProps } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  PlusOutlined,
+  RestOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+  FileExcelOutlined
 } from '@ant-design/icons';
-import type { TableProps } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
 interface BaseTableProps<T> extends Omit<TableProps<T>, 'title'> {
@@ -23,6 +23,7 @@ interface BaseTableProps<T> extends Omit<TableProps<T>, 'title'> {
   showAddButton?: boolean;
   showImportExport?: boolean;
   filterContent?: React.ReactNode;
+  searchableColumns?: string[];
 }
 
 const BaseTable = <T extends object>({
@@ -39,10 +40,108 @@ const BaseTable = <T extends object>({
   showAddButton = true,
   showImportExport = true,
   filterContent,
+  searchableColumns,
   ...restProps
 }: BaseTableProps<T>) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+  const [filters, setFilters] = useState<any>({});
+  const isFirstRender = useRef(true);
+
+  const onSearchRef = useRef(onSearch);
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      if (onSearchRef.current) {
+        // When searching, we usually want to reset to page 1
+        onSearchRef.current({
+          ...filters,
+          pageIndex: 1
+        });
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filters]);
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  const mergedColumns = columns?.map((col: any) => {
+    const isSearchable = searchableColumns?.includes(col.dataIndex as string) || col.searchable;
+    const hasOptions = col.filters && Array.isArray(col.filters);
+    const filterKey = col.key || col.dataIndex;
+
+    if (!isSearchable && !hasOptions) return col;
+
+    return {
+      ...col,
+      title: (
+        <div onClick={(e) => e.stopPropagation()} style={{
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '12px 0 8px 0',
+          minWidth: 120
+        }}>
+          <div style={{
+            textAlign: 'center',
+            fontWeight: 700,
+            color: 'var(--text-h)',
+            fontSize: '13px',
+            textTransform: 'none',
+            marginBottom: 4
+          }}>
+            {col.title}
+          </div>
+          {isSearchable && (
+            <Input
+              placeholder={`${t('Tìm theo')} ${String(col.title).toLowerCase()}`}
+              size="middle"
+              allowClear
+              value={filters[filterKey]}
+              onChange={(e) => handleFilterChange(filterKey, e.target.value)}
+              style={{
+                borderRadius: 20,
+                backgroundColor: 'var(--bg)',
+                border: '1px solid var(--border)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                fontSize: '13px'
+              }}
+            />
+          )}
+          {hasOptions && (
+            <Select
+              placeholder={`${t('Chọn')} ${String(col.title).toLowerCase()}`}
+              size="middle"
+              allowClear
+              value={filters[filterKey]}
+              onChange={(val) => handleFilterChange(filterKey, val)}
+              style={{
+                width: '100%',
+                borderRadius: 20,
+              }}
+              dropdownStyle={{ borderRadius: 8 }}
+              options={col.filters.map((f: any) => ({ label: f.text, value: f.value }))}
+              variant="outlined"
+              className="rounded-select"
+            />
+          )}
+        </div>
+      ),
+      filterIcon: () => null,
+    };
+  });
 
   const handleFinish = (values: any) => {
     if (onSearch) {
@@ -52,6 +151,7 @@ const BaseTable = <T extends object>({
 
   const handleReset = () => {
     form.resetFields();
+    setFilters({});
     if (onReset) {
       onReset();
     }
@@ -99,11 +199,11 @@ const BaseTable = <T extends object>({
 
       {filterContent && (
         <div style={{
-          background: 'rgba(0,0,0,0.02)',
+          background: 'var(--code-bg)',
           padding: '20px 20px 0 20px',
           borderRadius: 12,
           marginBottom: 20,
-          border: '1px solid rgba(0,0,0,0.05)'
+          border: '1px solid var(--border)'
         }}>
           <Form
             form={form}
@@ -134,18 +234,40 @@ const BaseTable = <T extends object>({
         </div>
       )}
 
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        loading={loading}
-        pagination={{
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
-          ...restProps.pagination,
-        }}
-        scroll={{ x: 'max-content' }}
-        {...restProps}
-      />
+      <Spin
+        spinning={loading as any}
+        indicator={<LoadingOutlined style={{ fontSize: 32, color: '#1890ff' }} spin />}
+        tip={t('Loading data...')}
+      >
+        <Table
+          size='small'
+          bordered
+          columns={mergedColumns}
+          dataSource={Array.isArray(dataSource) ? dataSource : (dataSource as any)?.items || (dataSource as any)?.data || []}
+          pagination={dataSource && typeof dataSource === 'object' && !Array.isArray(dataSource) ? {
+            showSizeChanger: true,
+            total: (dataSource as any).meta?.itemCount || (dataSource as any).meta?.total || (dataSource as any).total,
+            current: (dataSource as any).meta?.pageIndex || (dataSource as any).meta?.currentPage,
+            pageSize: (dataSource as any).meta?.pageSize,
+            showTotal: (total) => `Total ${total} items`,
+            ...restProps.pagination,
+          } : restProps.pagination}
+          onChange={(pagination, tableFilters, sorter, extra) => {
+            if (onSearch) {
+              onSearch({
+                ...filters,
+                pageIndex: pagination.current,
+                pageSize: pagination.pageSize,
+              });
+            }
+            if (restProps.onChange) {
+              restProps.onChange(pagination, tableFilters, sorter, extra);
+            }
+          }}
+          scroll={{ x: 'max-content' }}
+          {...restProps}
+        />
+      </Spin>
     </Card>
   );
 };

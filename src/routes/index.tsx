@@ -12,11 +12,26 @@ import Employees from '@/pages/MasterData/Employee/index';
 import Departments from '@/pages/MasterData/Department/index';
 import NotFound from '@/pages/Error/NotFound/index';
 import Forbidden from '@/pages/Error/Forbidden/index';
+import Login from '@/pages/Auth/Login';
+import Register from '@/pages/Auth/Register';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <Login />,
+  },
+  {
+    path: '/register',
+    element: <Register />,
+  },
+  {
     path: '/',
-    element: <MainLayout />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

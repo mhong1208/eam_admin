@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
@@ -21,6 +22,10 @@ const queryClient = new QueryClient({
 function App() {
   const { mode, colorPrimary } = useThemeStore();
   const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.body.className = mode;
+  }, [mode]);
 
   const getLocale = () => {
     switch (i18n.language) {

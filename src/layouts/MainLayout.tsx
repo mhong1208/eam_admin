@@ -14,12 +14,13 @@ import {
 import {
   getMenuItems,
   getUserMenuItems,
-  getLanguageItems,
-  getFooterMenuItems
+  getLanguageItems
 } from '@/config/menu';
 import { filterMenuItems } from '@/utils/menu';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useTranslation } from 'react-i18next';
+
+import { useAuthStore } from '@/store/useAuthStore';
 
 const { Header, Content, Sider } = Layout;
 
@@ -28,6 +29,7 @@ const MainLayout: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuthStore();
   const { mode, toggleTheme } = useThemeStore();
   const { t, i18n } = useTranslation();
 
@@ -65,7 +67,6 @@ const MainLayout: React.FC = () => {
 
   const userMenuItems: MenuProps['items'] = useMemo(() => getUserMenuItems(t), [t]);
   const languageItems: MenuProps['items'] = useMemo(() => getLanguageItems(i18n.language), [i18n.language]);
-  const footerMenuItems: MenuProps['items'] = useMemo(() => getFooterMenuItems(t, collapsed), [t, collapsed]);
 
 
   return (
@@ -207,7 +208,21 @@ const MainLayout: React.FC = () => {
               style={{ fontSize: '20px', height: 40, width: 40 }}
             />
 
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow trigger={['click']}>
+            <Dropdown 
+              menu={{ 
+                items: userMenuItems,
+                onClick: ({ key }) => {
+                  if (key === 'logout') {
+                    logout();
+                    localStorage.removeItem('access_token');
+                    navigate('/login');
+                  }
+                }
+              }} 
+              placement="bottomRight" 
+              arrow 
+              trigger={['click']}
+            >
               <div
                 style={{
                   cursor: 'pointer',
@@ -229,7 +244,7 @@ const MainLayout: React.FC = () => {
                   }}
                   icon={<UserOutlined />}
                 />
-                {!collapsed && <span style={{ color: colorTextBase, fontWeight: 600, fontSize: 14 }}>Admin</span>}
+                {!collapsed && <span style={{ color: colorTextBase, fontWeight: 600, fontSize: 14 }}>{user?.name || 'Admin'}</span>}
               </div>
             </Dropdown>
           </Space>
