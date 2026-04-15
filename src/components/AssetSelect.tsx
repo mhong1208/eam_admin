@@ -1,18 +1,18 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Select, Spin } from 'antd';
 import type { SelectProps } from 'antd';
-import { useAssetTypeLoadAll } from '@/hooks/useAssetTypes';
-import type { AssetType } from '@/hooks/useAssetTypes';
+import { useAssetLoadAll } from '@/hooks/useAssets';
+import type { Asset } from '@/hooks/useAssets';
 
 const PAGE_SIZE = 20;
 
-export interface AssetTypeSelectProps
+export interface AssetSelectProps
     extends Omit<SelectProps, 'options' | 'loading' | 'filterOption' | 'onSearch'> {
     onChange?: (value: any, option: any) => void;
 }
 
-const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({ onChange, ...rest }) => {
-    const { data: allDepts = [], isLoading } = useAssetTypeLoadAll();
+const AssetSelect: React.FC<AssetSelectProps> = ({ onChange, ...rest }) => {
+    const { data: allDepts = [], isLoading } = useAssetLoadAll();
 
     const [searchText, setSearchText] = useState('');
     const [page, setPage] = useState(1);
@@ -33,7 +33,7 @@ const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({ onChange, ...rest }) 
 
     const options = useMemo(
         () =>
-            visible.map((d: AssetType) => ({
+            visible.map((d: Asset) => ({
                 label: (
                     <span>
                         <span
@@ -87,7 +87,7 @@ const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({ onChange, ...rest }) 
         <Select
             showSearch
             allowClear
-            placeholder="Chọn phòng ban..."
+            placeholder="Chọn tài sản..."
             loading={isLoading}
             options={options}
             onSearch={handleSearch}
@@ -128,4 +128,4 @@ const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({ onChange, ...rest }) 
     );
 };
 
-export default AssetTypeSelect;
+export default AssetSelect;

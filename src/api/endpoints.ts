@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   HOME: '/dashboard',
   ASSETS: '/assets',
   TRANSFER: '/transfers',
+  HANDOVERS: '/handovers',
   MAINTENANCE: '/maintenances',
   INVENTORY_AUDIT: '/inventory-audits',
 

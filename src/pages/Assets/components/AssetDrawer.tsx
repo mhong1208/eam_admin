@@ -4,7 +4,7 @@ import { DatePicker, Form, Input, Switch } from 'antd';
 import BaseDrawer from '@/components/BaseDrawer';
 import TextArea from 'antd/es/input/TextArea';
 import LocationSelect from '@/components/LocationSelect';
-import AssetTypeSelect from '@/components/AssetType';
+import AssetTypeSelect from '@/components/AssetTypeSelect';
 import SupplierSelect from '@/components/SupplierSelect';
 
 interface AssetDrawerProps {

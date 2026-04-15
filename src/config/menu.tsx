@@ -6,6 +6,7 @@ import {
   DatabaseOutlined,
   PropertySafetyOutlined,
   SwapOutlined,
+  ExportOutlined,
   ToolOutlined,
   FileSearchOutlined,
   TagsOutlined,
@@ -13,6 +14,8 @@ import {
   ShopOutlined,
   TeamOutlined,
   ApartmentOutlined,
+  ScheduleOutlined,
+  BuildOutlined,
 } from '@ant-design/icons';
 import type { TFunction } from 'i18next';
 
@@ -28,14 +31,38 @@ export const getMenuItems = (t: TFunction): MenuProps['items'] => [
     label: t('Asset Management'),
   },
   {
-    key: '/transfer',
+    key: '/transfer-handover',
     icon: <SwapOutlined />,
     label: t('Transfer/Handover'),
+    children: [
+      {
+        key: '/handovers',
+        icon: <ExportOutlined />,
+        label: t('Handover'),
+      },
+      {
+        key: '/transfers',
+        icon: <SwapOutlined />,
+        label: t('Transfer'),
+      },
+    ],
   },
   {
-    key: '/maintenance',
+    key: '/maintenance-repair',
     icon: <ToolOutlined />,
     label: t('Maintenance/Repair'),
+    children: [
+      {
+        key: '/maintenances',
+        icon: <ScheduleOutlined />,
+        label: t('Maintenance'),
+      },
+      {
+        key: '/repairs',
+        icon: <BuildOutlined />,
+        label: t('Repair'),
+      },
+    ],
   },
   {
     key: '/inventory-audit',

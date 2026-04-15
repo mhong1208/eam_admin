@@ -3,7 +3,9 @@ import MainLayout from '@/layouts/MainLayout';
 import Dashboard from '@/pages/Dashboard/index';
 import Assets from '@/pages/Assets/index';
 import Transfer from '@/pages/Transfer/index';
+import Handover from '@/pages/Handover/index';
 import Maintenance from '@/pages/Maintenance/index';
+import Repair from '@/pages/Repair/index';
 import InventoryAudit from '@/pages/InventoryAudit/index';
 import AssetTypes from '@/pages/MasterData/AssetType/index';
 import Locations from '@/pages/MasterData/Location/index';
@@ -42,12 +44,20 @@ const router = createBrowserRouter([
         element: <Assets />,
       },
       {
-        path: 'transfer',
+        path: 'handovers',
+        element: <Handover />,
+      },
+      {
+        path: 'transfers',
         element: <Transfer />,
       },
       {
-        path: 'maintenance',
+        path: 'maintenances',
         element: <Maintenance />,
+      },
+      {
+        path: 'repairs',
+        element: <Repair />,
       },
       {
         path: 'inventory-audit',

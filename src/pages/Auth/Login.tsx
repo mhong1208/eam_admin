@@ -42,7 +42,7 @@ const Login: React.FC = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Title level={2} style={{ margin: 0, color: '#1890ff' }}>EAM ADMIN</Title>
-          <Text type="secondary">Quản lý tài sản thiết bị chuyên nghiệp</Text>
+          <Text type="secondary">Hệ thống quản lý tài sản</Text>
         </div>
 
         <Form
@@ -56,9 +56,9 @@ const Login: React.FC = () => {
             name="username"
             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
           >
-            <Input 
-              prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />} 
-              placeholder="Tên đăng nhập" 
+            <Input
+              prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="Tên đăng nhập"
             />
           </Form.Item>
 

@@ -1,7 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axios';
 import { API_ENDPOINTS } from '@/api/endpoints';
-
+export interface User {
+  id: number | string;
+  code: string;
+  fullName: string;
+}
+export const useUserLoadAll = () => {
+  return useQuery<User[]>({
+    queryKey: ['users-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.USERS}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
 export const useUsers = (filters?: any) => {
   const queryClient = useQueryClient();
 
@@ -21,7 +35,7 @@ export const useUsers = (filters?: any) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: any }) => 
+    mutationFn: ({ id, data }: { id: string | number; data: any }) =>
       axiosInstance.put(`${API_ENDPOINTS.USERS}/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

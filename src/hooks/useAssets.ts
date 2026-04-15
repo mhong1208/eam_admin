@@ -17,7 +17,16 @@ export interface Asset {
   isActive: boolean;
   status?: string;
 }
-
+export const useAssetLoadAll = () => {
+  return useQuery<Asset[]>({
+    queryKey: ['assets-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.ASSETS}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
 export const useAssets = (filters?: any) => {
   const queryClient = useQueryClient();
 

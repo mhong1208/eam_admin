@@ -86,7 +86,7 @@ const SupplierSelect: React.FC<SupplierSelectProps> = ({ onChange, ...rest }) =>
         <Select
             showSearch
             allowClear
-            placeholder="Chọn phòng ban..."
+            placeholder="Chọn nhà cung cấp..."
             loading={isLoading}
             options={options}
             onSearch={handleSearch}

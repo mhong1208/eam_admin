@@ -1,39 +1,39 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Select, Spin } from 'antd';
 import type { SelectProps } from 'antd';
-import { useLocationLoadAll } from '@/hooks/useLocations';
-import type { Location } from '@/hooks/useLocations';
+import { useAssetTypeLoadAll } from '@/hooks/useAssetTypes';
+import type { AssetType } from '@/hooks/useAssetTypes';
 
 const PAGE_SIZE = 20;
 
-export interface LocationSelectProps
+export interface AssetTypeSelectProps
     extends Omit<SelectProps, 'options' | 'loading' | 'filterOption' | 'onSearch'> {
     onChange?: (value: any, option: any) => void;
 }
 
-const LocationSelect: React.FC<LocationSelectProps> = ({ onChange, ...rest }) => {
-    const { data: allLocations = [], isLoading } = useLocationLoadAll();
+const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({ onChange, ...rest }) => {
+    const { data: allDepts = [], isLoading } = useAssetTypeLoadAll();
 
     const [searchText, setSearchText] = useState('');
     const [page, setPage] = useState(1);
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const filtered = useMemo(() => {
-        if (!searchText.trim()) return allLocations;
+        if (!searchText.trim()) return allDepts;
         const lower = searchText.toLowerCase();
-        return allLocations.filter(
+        return allDepts.filter(
             (d) =>
                 d.name.toLowerCase().includes(lower) ||
                 d.code.toLowerCase().includes(lower),
         );
-    }, [allLocations, searchText]);
+    }, [allDepts, searchText]);
 
     const visible = useMemo(() => filtered.slice(0, page * PAGE_SIZE), [filtered, page]);
     const hasMore = visible.length < filtered.length;
 
     const options = useMemo(
         () =>
-            visible.map((d: Location) => ({
+            visible.map((d: AssetType) => ({
                 label: (
                     <span>
                         <span
@@ -87,7 +87,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({ onChange, ...rest }) =>
         <Select
             showSearch
             allowClear
-            placeholder="Chọn vị trí..."
+            placeholder="Chọn loại tài sản..."
             loading={isLoading}
             options={options}
             onSearch={handleSearch}
@@ -100,7 +100,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({ onChange, ...rest }) =>
                     <Spin size="small" style={{ display: 'block', textAlign: 'center', padding: 8 }} />
                 ) : (
                     <span style={{ color: '#aaa', padding: 8, display: 'block', textAlign: 'center' }}>
-                        Không tìm thấy vị trí
+                        Không tìm thấy phòng ban
                     </span>
                 )
             }
@@ -128,4 +128,4 @@ const LocationSelect: React.FC<LocationSelectProps> = ({ onChange, ...rest }) =>
     );
 };
 
-export default LocationSelect;
+export default AssetTypeSelect;
