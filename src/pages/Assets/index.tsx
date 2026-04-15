@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Space, Tooltip, Button, message, Tag } from 'antd';
-import { EditOutlined, CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import BaseTable from '@/components/BaseTable';
 import { useAssets } from '@/hooks/useAssets';
 import AssetDrawer from './components/AssetDrawer';
