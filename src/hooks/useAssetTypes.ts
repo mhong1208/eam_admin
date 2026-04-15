@@ -1,7 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axios';
 import { API_ENDPOINTS } from '@/api/endpoints';
-
+export interface AssetType {
+  id: number | string;
+  code: string;
+  name: string;
+  description?: string;
+}
+export const useAssetTypeLoadAll = () => {
+  return useQuery<AssetType[]>({
+    queryKey: ['asset-types-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.ASSET_CATEGORIES}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
 export const useAssetTypes = (filters?: any) => {
   const queryClient = useQueryClient();
 
@@ -43,11 +58,27 @@ export const useAssetTypes = (filters?: any) => {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return axiosInstance.post(`${API_ENDPOINTS.ASSET_CATEGORIES}/import`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+    },
+  });
+
   return {
     ...query,
     createAssetType: createMutation,
     updateAssetType: updateMutation,
     deleteAssetType: deleteMutation,
     updateAssetTypeStatus: updateStatusMutation,
+    importAssetType: importMutation
   };
 };

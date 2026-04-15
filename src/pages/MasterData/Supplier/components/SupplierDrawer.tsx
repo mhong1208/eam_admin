@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Switch, Row, Col } from 'antd';
+import { Col, Form, Input, Row } from 'antd';
 import BaseDrawer from '@/components/BaseDrawer';
-import DepartmentSelect from '@/components/DepartmentSelect';
 
-interface EmployeeDrawerProps {
+interface SupplierDrawerProps {
   open: boolean;
   mode: 'add' | 'edit' | 'view';
   initialValues?: any;
@@ -12,7 +11,7 @@ interface EmployeeDrawerProps {
   onOk: (values: any) => void;
 }
 
-const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
+const SupplierDrawer: React.FC<SupplierDrawerProps> = ({
   open,
   mode,
   initialValues,
@@ -48,7 +47,7 @@ const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
     <BaseDrawer
       open={open}
       mode={mode}
-      drawerName="nhân viên"
+      drawerName="Nhà cung cấp"
       onClose={onCancel}
       onOk={handleSubmit}
       loading={loading}
@@ -57,37 +56,33 @@ const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
       <Form
         form={form}
         layout="vertical"
-        initialValues={{ isActive: true, role: 'USER' }}
         disabled={isView}
       >
         <Form.Item
-          name="fullName"
-          label="Họ tên"
-          rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+          name="name"
+          label="Tên nhà cung cấp"
+          rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp' }]}
         >
-          <Input placeholder="Nhập họ tên" />
+          <Input placeholder="Nhập tên nhà cung cấp" />
         </Form.Item>
 
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="role"
-              label="Vai trò"
-              rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+              name="code"
+              label="Mã nhà cung cấp"
+              rules={[{ required: true, message: 'Vui lòng nhập mã nhà cung cấp' }]}
             >
-              <Select placeholder="Chọn vai trò">
-                <Select.Option value="ADMIN">Quản trị viên</Select.Option>
-                <Select.Option value="USER">Nhân viên</Select.Option>
-              </Select>
+              <Input placeholder="Nhập mã nhà cung cấp" disabled={mode === 'edit' || mode === 'view'} />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="departmentId"
-              label="Phòng ban"
-              rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}
+              name="phone"
+              label="Phone"
+              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
             >
-              <DepartmentSelect />
+              <Input placeholder="Nhập số điện thoại" />
             </Form.Item>
           </Col>
         </Row>
@@ -95,24 +90,30 @@ const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
         <Form.Item
           name="email"
           label="Email"
-          rules={[
-            { type: 'email', message: 'Email không hợp lệ' },
-            { required: mode === 'add', message: 'Vui lòng nhập email' }
-          ]}
+          rules={[{ required: true, message: 'Vui lòng nhập email' }]}
         >
-          <Input placeholder="Nhập địa chỉ email" />
+          <Input placeholder="Nhập email" />
+        </Form.Item>
+
+
+
+        <Form.Item
+          name="address"
+          label="Địa chỉ"
+          rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
+        >
+          <Input placeholder="Nhập địa chỉ" />
         </Form.Item>
 
         <Form.Item
-          name="isActive"
-          label="Trạng thái"
-          valuePropName="checked"
+          name="description"
+          label="Mô tả"
         >
-          <Switch checkedChildren="Hoạt động" unCheckedChildren="Khóa" />
+          <Input.TextArea placeholder="Nhập mô tả" rows={3} />
         </Form.Item>
       </Form>
     </BaseDrawer>
   );
 };
 
-export default EmployeeDrawer;
+export default SupplierDrawer;

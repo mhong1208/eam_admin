@@ -47,6 +47,7 @@ const BaseTable = <T extends object>({
   const [form] = Form.useForm();
   const [filters, setFilters] = useState<any>({});
   const isFirstRender = useRef(true);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
   const onSearchRef = useRef(onSearch);
   useEffect(() => {
@@ -156,6 +157,19 @@ const BaseTable = <T extends object>({
     }
   };
 
+  const getAllChildKeys = (record: any, rowKey = 'id') => {
+    let keys: React.Key[] = [];
+
+    if (record.children) {
+      for (const child of record.children) {
+        keys.push(child[rowKey]);
+        keys = keys.concat(getAllChildKeys(child, rowKey));
+      }
+    }
+
+    return keys;
+  };
+
   return (
     <Card bordered={false} className="base-table-card" style={{ marginBottom: 16 }}>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
@@ -239,6 +253,7 @@ const BaseTable = <T extends object>({
         tip={t('Loading data...')}
       >
         <Table
+          rowKey="id"
           size='small'
           bordered
           columns={mergedColumns}
@@ -264,6 +279,24 @@ const BaseTable = <T extends object>({
             }
           }}
           scroll={{ x: 'max-content' }}
+          expandable={{
+            expandedRowKeys,
+            onExpand: (expanded, record: any) => {
+              if (expanded) {
+                setExpandedRowKeys(prev =>
+                  prev.includes(record.id) ? prev : [...prev, record.id]
+                );
+              } else {
+                const childKeys = getAllChildKeys(record);
+
+                setExpandedRowKeys(prev =>
+                  prev.filter(
+                    key => key !== record.id && !childKeys.includes(key)
+                  )
+                );
+              }
+            },
+          }}
           {...restProps}
         />
       </Spin>

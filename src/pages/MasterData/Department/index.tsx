@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import BaseTable from '@/components/BaseTable';
 import { useDepartments } from '@/hooks/useDepartments';
 import * as XLSX from 'xlsx';
-import { message, Modal, Drawer, Table, Tag, Button, Space, Tooltip } from 'antd';
-import { ExclamationCircleOutlined, WarningOutlined, DownloadOutlined, EditOutlined, CheckCircleOutlined, StopOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { message, Modal, Tag, Button, Space, Tooltip } from 'antd';
+import { ExclamationCircleOutlined, EditOutlined, CheckCircleOutlined, StopOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import DepartmentDrawer from './components/DepartmentDrawer';
+import ImportErrorDrawer from './components/ImportErrorDrawer';
+
 
 interface ImportError {
   row: number;
@@ -18,7 +20,6 @@ const Department: React.FC = () => {
   const [filters, setFilters] = useState<any>({});
   const { data, isLoading, refetch, importDepartments, createDepartment, updateDepartment, updateDepartmentStatus } = useDepartments(filters);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
   const [importErrorMessage, setImportErrorMessage] = useState('');
   const [errorDrawerOpen, setErrorDrawerOpen] = useState(false);
@@ -126,44 +127,7 @@ const Department: React.FC = () => {
     },
   ];
 
-  const errorColumns = [
-    {
-      title: 'Dòng',
-      dataIndex: 'row',
-      key: 'row',
-      width: 70,
-      align: 'center' as const,
-      render: (row: number) => (
-        <Tag color="volcano" style={{ fontWeight: 600 }}>
-          #{row}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Mã phòng ban',
-      dataIndex: 'code',
-      key: 'code',
-      width: 140,
-      render: (code: string) => (
-        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-primary, #1677ff)' }}>
-          {code}
-        </span>
-      ),
-    },
-    {
-      title: 'Tên phòng ban',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Lý do lỗi',
-      dataIndex: 'reason',
-      key: 'reason',
-      render: (reason: string) => (
-        <span style={{ color: '#ff4d4f' }}>{reason}</span>
-      ),
-    },
-  ];
+
 
   const handleDownloadTemplate = () => {
     const templateData = [
@@ -287,50 +251,15 @@ const Department: React.FC = () => {
         onOk={handleDrawerOk}
       />
 
-      <Drawer
-        title={
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <WarningOutlined style={{ color: '#ff4d4f' }} />
-            Danh sách dòng import lỗi
-          </span>
-        }
-        open={errorDrawerOpen}
-        onClose={() => setErrorDrawerOpen(false)}
-        width={760}
-        destroyOnClose
-        extra={
-          <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 13, color: '#888' }}>{importErrorMessage}</span>
-            <Button
-              size="small"
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadErrors}
-            >
-              Tải xuống
-            </Button>
-          </span>
-        }
-      >
-        <Table<ImportError>
-          columns={errorColumns}
-          dataSource={importErrors.map((item) => ({ ...item, key: item.row }))}
-          pagination={false}
-          size="small"
-          bordered
-          scroll={{ y: 'calc(100vh - 220px)' }}
-          summary={() => (
-            <Table.Summary fixed>
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={4}>
-                  <span style={{ color: '#ff4d4f', fontWeight: 600 }}>
-                    Tổng: {importErrors.length} dòng lỗi
-                  </span>
-                </Table.Summary.Cell>
-              </Table.Summary.Row>
-            </Table.Summary>
-          )}
-        />
-      </Drawer>
+      <ImportErrorDrawer
+        errorDrawerOpen={errorDrawerOpen}
+        setErrorDrawerOpen={setErrorDrawerOpen}
+        importErrors={importErrors}
+        importErrorMessage={importErrorMessage}
+        handleDownloadErrors={handleDownloadErrors}
+      />
+
+
     </>
   );
 };

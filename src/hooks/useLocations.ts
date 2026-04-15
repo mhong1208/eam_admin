@@ -2,6 +2,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axios';
 import { API_ENDPOINTS } from '@/api/endpoints';
 
+export interface Location {
+  id: number | string;
+  code: string;
+  name: string;
+  description?: string;
+  parentId?: number | string;
+}
+
+export const useLocationLoadAll = () => {
+  return useQuery<Location[]>({
+    queryKey: ['locations-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.LOCATIONS}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useLocations = (filters?: any) => {
   const queryClient = useQueryClient();
 
@@ -21,7 +40,7 @@ export const useLocations = (filters?: any) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: any }) => 
+    mutationFn: ({ id, data }: { id: string | number; data: any }) =>
       axiosInstance.put(`${API_ENDPOINTS.LOCATIONS}/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['locations'] });
@@ -43,11 +62,27 @@ export const useLocations = (filters?: any) => {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return axiosInstance.post(`${API_ENDPOINTS.LOCATIONS}/import`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    },
+  });
+
   return {
     ...query,
     createLocation: createMutation,
     updateLocation: updateMutation,
     deleteLocation: deleteMutation,
     updateLocationStatus: updateStatusMutation,
+    importLocation: importMutation,
   };
 };

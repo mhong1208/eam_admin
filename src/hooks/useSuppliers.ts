@@ -1,7 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axios';
 import { API_ENDPOINTS } from '@/api/endpoints';
-
+export interface Supplier {
+  id: number | string;
+  code: string;
+  name: string;
+  description?: string;
+}
+export const useSupplierLoadAll = () => {
+  return useQuery<Supplier[]>({
+    queryKey: ['suppliers-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.SUPPLIERS}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
 export const useSuppliers = (filters?: any) => {
   const queryClient = useQueryClient();
 
@@ -21,7 +36,7 @@ export const useSuppliers = (filters?: any) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: any }) => 
+    mutationFn: ({ id, data }: { id: string | number; data: any }) =>
       axiosInstance.put(`${API_ENDPOINTS.SUPPLIERS}/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
@@ -43,11 +58,28 @@ export const useSuppliers = (filters?: any) => {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return axiosInstance.post(`${API_ENDPOINTS.SUPPLIERS}/import`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+    },
+  });
+
+
   return {
     ...query,
     createSupplier: createMutation,
     updateSupplier: updateMutation,
     deleteSupplier: deleteMutation,
     updateSupplierStatus: updateStatusMutation,
+    importSupplier: importMutation,
   };
 };

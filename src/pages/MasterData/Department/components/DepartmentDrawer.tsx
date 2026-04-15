@@ -47,7 +47,7 @@ const DepartmentDrawer: React.FC<DepartmentDrawerProps> = ({
     <BaseDrawer
       open={open}
       mode={mode}
-      entityName="phòng ban"
+      drawerName="phòng ban"
       onClose={onCancel}
       onOk={handleSubmit}
       loading={loading}

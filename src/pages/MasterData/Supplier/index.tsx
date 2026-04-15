@@ -2,16 +2,31 @@ import React, { useState } from 'react';
 import BaseTable from '@/components/BaseTable';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { message, Modal, Button, Space, Tag, Tooltip } from 'antd';
-import { EditOutlined, CheckCircleOutlined, StopOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, CheckCircleOutlined, StopOutlined, QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import SupplierDrawer from './components/SupplierDrawer';
+import ImportErrorDrawer from './components/ImportErrorDrawer';
+import * as XLSX from 'xlsx';
+
+interface ImportError {
+  row: number;
+  code: string;
+  name: string;
+  reason: string;
+  description: string;
+}
 
 const Supplier: React.FC = () => {
   const [filters, setFilters] = useState<any>({});
-  const { data, isLoading, refetch, createSupplier, updateSupplier, updateSupplierStatus } = useSuppliers(filters);
+  const { data, isLoading, refetch, createSupplier, importSupplier, updateSupplier, updateSupplierStatus } = useSuppliers(filters);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'add' | 'edit' | 'view'>('add');
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
 
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
+  const [importErrorMessage, setImportErrorMessage] = useState('');
+  const [errorDrawerOpen, setErrorDrawerOpen] = useState(false);
   const handleAdd = () => {
     setDrawerMode('add');
     setSelectedRecord(null);
@@ -46,7 +61,119 @@ const Supplier: React.FC = () => {
     });
   };
 
+  const handleDrawerOk = async (values: any) => {
+    try {
+      if (drawerMode === 'add') {
+        await createSupplier.mutateAsync(values);
+        message.success('Thêm mới nhà cung cấp thành công');
+      } else {
+        await updateSupplier.mutateAsync({ id: selectedRecord.id, data: values });
+        message.success('Cập nhật nhà cung cấp thành công');
+      }
+      setDrawerOpen(false);
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || (drawerMode === 'add' ? 'Thêm mới thất bại' : 'Cập nhật thất bại'));
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        'Mã nhà cung cấp': '',
+        'Tên nhà cung cấp': '',
+        'Số điện thoại': '',
+        'Email': '',
+        'Địa chỉ': '',
+        'Mô tả': '',
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Supplier Template');
+
+    const wscols = [
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 25 },
+    ];
+    ws['!cols'] = wscols;
+
+    XLSX.writeFile(wb, 'Supplier_Import_Template.xlsx');
+  };
+
+  const handleImport = () => {
+    fileInputRef.current?.click();
+  };
+
+  const showImportErrorConfirm = (errMsg: string, errors: ImportError[]) => {
+    Modal.confirm({
+      title: 'Import thất bại',
+      icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+      content: (
+        <div>
+          <p style={{ marginBottom: 8 }}>{errMsg}</p>
+          <p style={{ color: '#888', fontSize: 13 }}>
+            Bạn có muốn xem danh sách các dòng bị lỗi không?
+          </p>
+        </div>
+      ),
+      okText: 'Xem chi tiết',
+      cancelText: 'Đóng',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        setImportErrors(errors);
+        setImportErrorMessage(errMsg);
+        setErrorDrawerOpen(true);
+      },
+    });
+  };
+
+  const handleDownloadErrors = () => {
+    const exportData = importErrors.map((item) => ({
+      'Mã phòng ban': item.code,
+      'Tên phòng ban': item.name,
+      'Mô tả': item.description
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    ws['!cols'] = [{ wch: 8 }, { wch: 20 }, { wch: 35 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Danh sách lỗi');
+    XLSX.writeFile(wb, 'Department_Import_Errors.xlsx');
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const res = await importSupplier.mutateAsync(file);
+        const resData = res.data;
+        if (resData.type === 'success') {
+          message.success(resData.message);
+        } else {
+          if (resData.errors && resData.errors.length > 0) {
+            showImportErrorConfirm(resData.message, resData.errors);
+          } else {
+            message.error(resData.message);
+          }
+        }
+      } catch (error: any) {
+        const errData = error?.response?.data;
+        if (errData?.errors && errData.errors.length > 0) {
+          showImportErrorConfirm(errData.message, errData.errors);
+        } else {
+          message.error(errData?.message || 'Import thất bại');
+        }
+      } finally {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    }
+  };
+
   const columns: any = [
+    { title: 'Mã nhà cung cấp', dataIndex: 'code', key: 'code', searchable: true },
     { title: 'Tên nhà cung cấp', dataIndex: 'name', key: 'name', searchable: true },
     { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone', searchable: true },
     { title: 'Email', dataIndex: 'email', key: 'email' },
@@ -98,14 +225,40 @@ const Supplier: React.FC = () => {
   ];
 
   return (
-    <BaseTable
-      columns={columns}
-      dataSource={data}
-      loading={isLoading}
-      onSearch={(values: any) => setFilters(values)}
-      onAdd={handleAdd}
-      onRefresh={refetch}
-    />
+    <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".xlsx, .xls"
+        onChange={handleFileChange}
+      />
+      <BaseTable
+        columns={columns}
+        dataSource={data}
+        loading={isLoading}
+        onSearch={(values: any) => setFilters(values)}
+        onAdd={handleAdd}
+        onRefresh={refetch}
+        onDownloadTemplate={handleDownloadTemplate}
+        onImport={handleImport}
+      />
+      <SupplierDrawer
+        open={drawerOpen}
+        mode={drawerMode}
+        initialValues={selectedRecord}
+        loading={createSupplier.isPending || updateSupplier.isPending}
+        onCancel={() => setDrawerOpen(false)}
+        onOk={handleDrawerOk}
+      />
+      <ImportErrorDrawer
+        errorDrawerOpen={errorDrawerOpen}
+        setErrorDrawerOpen={setErrorDrawerOpen}
+        importErrors={importErrors}
+        importErrorMessage={importErrorMessage}
+        handleDownloadErrors={handleDownloadErrors}
+      />
+    </>
   );
 };
 

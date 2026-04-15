@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 interface BaseDrawerProps extends DrawerProps {
   mode?: 'add' | 'edit' | 'view';
-  entityName?: string;
+  drawerName?: string;
   loading?: boolean;
   onOk?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   children: React.ReactNode;
@@ -14,14 +14,9 @@ interface BaseDrawerProps extends DrawerProps {
   cancelText?: string;
 }
 
-
-/**
- * BaseDrawer component dùng chung cho các tác vụ Thêm mới, Chỉnh sửa và Xem chi tiết.
- * Được thiết kế để trượt từ cạnh màn hình vào (thay vì modal).
- */
 const BaseDrawer: React.FC<BaseDrawerProps> = ({
   mode = 'add',
-  entityName = '',
+  drawerName = '',
   loading = false,
   onOk,
   onClose,
@@ -38,7 +33,7 @@ const BaseDrawer: React.FC<BaseDrawerProps> = ({
   const getTitle = () => {
     if (title) return title;
     const prefix = mode === 'add' ? t('Thêm mới') : mode === 'edit' ? t('Chỉnh sửa') : t('Chi tiết');
-    return `${prefix} ${entityName}`;
+    return `${prefix} ${drawerName}`;
   };
 
   // Tự động tạo text cho nút OK nếu không truyền vào
@@ -60,9 +55,9 @@ const BaseDrawer: React.FC<BaseDrawerProps> = ({
           <Space>
             <Button onClick={(e) => onClose?.(e as any)}>{cancelText || t('Hủy')}</Button>
             {mode !== 'view' && (
-              <Button 
-                type="primary" 
-                onClick={onOk} 
+              <Button
+                type="primary"
+                onClick={onOk}
                 loading={loading}
               >
                 {getOkText()}
