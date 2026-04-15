@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Select, Switch, Row, Col } from 'antd';
 import BaseDrawer from '@/components/BaseDrawer';
+import DepartmentSelect from '@/components/DepartmentSelect';
 
 interface EmployeeDrawerProps {
   open: boolean;
@@ -67,22 +68,14 @@ const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
           <Input placeholder="Nhập họ tên" />
         </Form.Item>
 
-        <Form.Item
-          name="code"
-          label="Mã nhân viên"
-          rules={[{ required: true, message: 'Vui lòng nhập mã nhân viên' }]}
-        >
-          <Input placeholder="Nhập mã nhân viên" disabled={mode === 'edit' || mode === 'view'} />
-        </Form.Item>
-
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               name="role"
-              label="Chức danh"
-              rules={[{ required: true, message: 'Vui lòng chọn chức danh' }]}
+              label="Vai trò"
+              rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
             >
-              <Select placeholder="Chọn chức danh">
+              <Select placeholder="Chọn vai trò">
                 <Select.Option value="ADMIN">Quản trị viên</Select.Option>
                 <Select.Option value="USER">Nhân viên</Select.Option>
               </Select>
@@ -90,10 +83,10 @@ const EmployeeDrawer: React.FC<EmployeeDrawerProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              name="department"
+              name="departmentId"
               label="Phòng ban"
             >
-              <Input placeholder="Nhập phòng ban" />
+              <DepartmentSelect />
             </Form.Item>
           </Col>
         </Row>

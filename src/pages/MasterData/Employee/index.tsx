@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { Avatar, Button, Space, Tag, Modal, message, Tooltip } from 'antd';
-import { DeleteOutlined, EditOutlined, EyeOutlined, UserOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, UserOutlined, QuestionCircleOutlined, UserAddOutlined } from '@ant-design/icons';
 import BaseTable from '@/components/BaseTable';
 import { useUsers } from '@/hooks/useUsers';
 import EmployeeDrawer from './components/EmployeeDrawer';
+import AccountDrawer from './components/AccountDrawer';
 
 const Employee: React.FC = () => {
   const [filters, setFilters] = useState<any>({});
-  const { data, isLoading, refetch, createUser, updateUser, deleteUser } = useUsers(filters);
+  const { data, isLoading, refetch, createUser, updateUser, deleteUser, createAccount, resetPassword } = useUsers(filters);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'add' | 'edit' | 'view'>('add');
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [accountEmployee, setAccountEmployee] = useState<any>(null);
 
   const handleAdd = () => {
     setDrawerMode('add');
@@ -29,6 +33,19 @@ const Employee: React.FC = () => {
     setDrawerMode('view');
     setSelectedRecord(record);
     setDrawerOpen(true);
+  };
+
+  const handleOpenAccount = (record: any) => {
+    setAccountEmployee(record);
+    setAccountModalOpen(true);
+  };
+
+  const handleCreateAccount = async (id: string | number, accountData: { username: string; password: string }) => {
+    await createAccount.mutateAsync({ id, data: accountData });
+  };
+
+  const handleResetPassword = async (id: string | number, resetData: { newPassword: string }) => {
+    await resetPassword.mutateAsync({ id, data: resetData });
   };
 
   const handleDelete = (id: string | number) => {
@@ -94,9 +111,8 @@ const Employee: React.FC = () => {
       title: 'Phòng ban',
       dataIndex: 'department',
       key: 'department',
-      align: 'center',
       searchable: true,
-      render: (text: string) => <span>{text ? text : '-'}</span>
+      render: (_: any, record: any) => <span>{record.department ? record?.department?.name : '-'}</span>
     },
     {
       title: 'Chức vụ',
@@ -124,28 +140,37 @@ const Employee: React.FC = () => {
     {
       title: 'Tác vụ',
       key: 'actions',
+      fixed: 'right',
       render: (_: any, record: any) => (
         <Space>
           <Tooltip title="Xem chi tiết">
-            <Button 
-              size="small" 
-              icon={<EyeOutlined />} 
+            <Button
+              size="small"
+              icon={<EyeOutlined />}
               onClick={() => handleView(record)}
             />
           </Tooltip>
           <Tooltip title="Chỉnh sửa">
-            <Button 
-              type="primary" 
-              size="small" 
-              icon={<EditOutlined />} 
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
+          <Tooltip title={record.username ? 'Quản lý tài khoản' : 'Tạo tài khoản'}>
+            <Button
+              size="small"
+              icon={<UserAddOutlined />}
+              style={record.username ? { color: '#52c41a', borderColor: '#52c41a' } : {}}
+              onClick={() => handleOpenAccount(record)}
+            />
+          </Tooltip>
           <Tooltip title="Xóa">
-            <Button 
-              danger 
-              size="small" 
-              icon={<DeleteOutlined />} 
+            <Button
+              danger
+              size="small"
+              icon={<DeleteOutlined />}
               onClick={() => handleDelete(record.id)}
             />
           </Tooltip>
@@ -173,6 +198,16 @@ const Employee: React.FC = () => {
         loading={createUser.isPending || updateUser.isPending}
         onCancel={() => setDrawerOpen(false)}
         onOk={handleDrawerOk}
+      />
+
+      <AccountDrawer
+        open={accountModalOpen}
+        employee={accountEmployee}
+        onClose={() => setAccountModalOpen(false)}
+        onCreateAccount={handleCreateAccount}
+        onResetPassword={handleResetPassword}
+        createLoading={createAccount.isPending}
+        resetLoading={resetPassword.isPending}
       />
     </>
   );

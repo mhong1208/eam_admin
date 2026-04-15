@@ -42,7 +42,7 @@ const resources = {
       'Home': 'Trang chủ',
       'Inventory': 'Tồn kho',
       'Settings': 'Cài đặt',
-      'Profile': 'Hồ sơ',
+      'Profile': 'Thông tin tài khoản',
       'Logout': 'Đăng xuất',
       'WMS Pro': 'WMS Pro',
       'Vietnam Admin': 'Quản trị viên Việt Nam',

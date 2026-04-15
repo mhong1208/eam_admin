@@ -35,10 +35,19 @@ export const useLocations = (filters?: any) => {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string | number; isActive: boolean }) =>
+      axiosInstance.put(`${API_ENDPOINTS.LOCATIONS}/${id}/status`, { isActive }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    },
+  });
+
   return {
     ...query,
-    createMutation,
-    updateMutation,
-    deleteMutation,
+    createLocation: createMutation,
+    updateLocation: updateMutation,
+    deleteLocation: deleteMutation,
+    updateLocationStatus: updateStatusMutation,
   };
 };

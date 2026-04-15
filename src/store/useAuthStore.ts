@@ -4,7 +4,8 @@ import { persist } from 'zustand/middleware';
 interface User {
   id: string;
   email: string;
-  name: string;
+  fullName: string;
+  code: string;
   role: string;
 }
 
@@ -26,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
     }),
     {
-      name: 'wms-auth-store',
+      name: 'eam-auth-store',
     }
   )
 );

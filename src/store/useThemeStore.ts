@@ -18,7 +18,7 @@ export const useThemeStore = create<ThemeState>()(
       toggleTheme: () => set((state) => ({ mode: state.mode === 'light' ? 'dark' : 'light' })),
     }),
     {
-      name: 'wms-theme-store', // Tên key sẽ được lưu vào localStorage
+      name: 'eam-theme-store', // Tên key sẽ được lưu vào localStorage
     }
   )
 );

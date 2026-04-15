@@ -2,6 +2,24 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axios';
 import { API_ENDPOINTS } from '@/api/endpoints';
 
+export interface Department {
+  id: number | string;
+  code: string;
+  name: string;
+  description?: string;
+}
+
+export const useDepartmentLoadAll = () => {
+  return useQuery<Department[]>({
+    queryKey: ['departments-all'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`${API_ENDPOINTS.DEPARTMENTS}/load-data`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useDepartments = (filters?: any) => {
   const queryClient = useQueryClient();
 
@@ -21,7 +39,7 @@ export const useDepartments = (filters?: any) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: any }) => 
+    mutationFn: ({ id, data }: { id: string | number; data: any }) =>
       axiosInstance.put(`${API_ENDPOINTS.DEPARTMENTS}/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['departments'] });
@@ -35,6 +53,13 @@ export const useDepartments = (filters?: any) => {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string | number; isActive: boolean }) =>
+      axiosInstance.put(`${API_ENDPOINTS.DEPARTMENTS}/${id}/status`, { isActive }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+    },
+  });
   const importMutation = useMutation({
     mutationFn: (file: File) => {
       const formData = new FormData();
@@ -56,5 +81,6 @@ export const useDepartments = (filters?: any) => {
     updateDepartment: updateMutation,
     deleteDepartment: deleteMutation,
     importDepartments: importMutation,
+    updateDepartmentStatus: updateStatusMutation,
   };
 };

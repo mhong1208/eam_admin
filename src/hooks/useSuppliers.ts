@@ -35,10 +35,19 @@ export const useSuppliers = (filters?: any) => {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string | number; isActive: boolean }) =>
+      axiosInstance.put(`${API_ENDPOINTS.SUPPLIERS}/${id}/status`, { isActive }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    },
+  });
+
   return {
     ...query,
     createSupplier: createMutation,
     updateSupplier: updateMutation,
     deleteSupplier: deleteMutation,
+    updateSupplierStatus: updateStatusMutation,
   };
 };

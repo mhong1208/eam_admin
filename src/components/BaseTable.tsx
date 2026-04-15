@@ -61,7 +61,6 @@ const BaseTable = <T extends object>({
 
     const handler = setTimeout(() => {
       if (onSearchRef.current) {
-        // When searching, we usually want to reset to page 1
         onSearchRef.current({
           ...filters,
           pageIndex: 1

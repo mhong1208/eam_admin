@@ -208,8 +208,8 @@ const MainLayout: React.FC = () => {
               style={{ fontSize: '20px', height: 40, width: 40 }}
             />
 
-            <Dropdown 
-              menu={{ 
+            <Dropdown
+              menu={{
                 items: userMenuItems,
                 onClick: ({ key }) => {
                   if (key === 'logout') {
@@ -218,9 +218,9 @@ const MainLayout: React.FC = () => {
                     navigate('/login');
                   }
                 }
-              }} 
-              placement="bottomRight" 
-              arrow 
+              }}
+              placement="bottomRight"
+              arrow
               trigger={['click']}
             >
               <div
@@ -244,7 +244,16 @@ const MainLayout: React.FC = () => {
                   }}
                   icon={<UserOutlined />}
                 />
-                {!collapsed && <span style={{ color: colorTextBase, fontWeight: 600, fontSize: 14 }}>{user?.name || 'Admin'}</span>}
+                {!collapsed && (
+                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.5 }}>
+                    <span style={{ fontWeight: 600, fontSize: 14, color: colorTextBase }}>
+                      {user?.fullName || 'Admin'}
+                    </span>
+                    <span style={{ fontSize: 12, opacity: 0.7 }}>
+                      {user?.code}
+                    </span>
+                  </div>
+                )}
               </div>
             </Dropdown>
           </Space>
@@ -282,7 +291,7 @@ const MainLayout: React.FC = () => {
           </div>
         </Content>
       </Layout>
-    </Layout>
+    </Layout >
   );
 };
 
